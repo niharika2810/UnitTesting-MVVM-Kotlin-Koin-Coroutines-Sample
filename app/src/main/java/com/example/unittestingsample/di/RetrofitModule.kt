@@ -20,9 +20,7 @@ import com.example.unittestingsample.util.Constants
 import java.io.File
 
 /**
- * Ahsen Saeed}
- * ahsansaeed067@gmail.com}
- * 10/24/19}
+ * Niharika.Arora
  */
 
 private const val CACHE_FILE_SIZE: Long = 30 * 1000 * 1000 // 30 Mib

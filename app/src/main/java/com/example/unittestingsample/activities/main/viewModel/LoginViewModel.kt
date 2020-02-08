@@ -1,14 +1,13 @@
 package com.example.unittestingsample.activities.main.viewModel
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
-import okhttp3.Headers
 import com.example.unittestingsample.backend.ServiceUtil
 import com.example.unittestingsample.util.Constants
-import com.example.unittestingsample.util.Event
+import com.example.unittestingsample.util.LoginDataState
+import com.example.unittestingsample.util.UtilityClass
+import kotlinx.coroutines.launch
 
 /**
  * author Niharika Arora
@@ -19,48 +18,47 @@ class LoginViewModel constructor(
     private val inputName: String, private val password: String
 ) : ViewModel() {
     private lateinit var map: HashMap<String, String>
-    private val _uiState = MutableLiveData<LoginDataState>()
-    val uiState: LiveData<LoginDataState> get() = _uiState
+    val uiState = MutableLiveData<LoginDataState>()
 
     fun doLogin() {
-        if (inputName.isNotEmpty() && password.isNotEmpty()) {
+        if (isUserEmailValid() && isUserPasswordValid()) {
             viewModelScope.launch {
                 runCatching {
-                    emitUiState(showProgress = true)
+                    uiState.postValue(LoginDataState.ShowProgress(true))
                     map = HashMap()
                     map[Constants.USERNAME] = inputName
                     map[Constants.PASSWORD] = password
                     serviceUtil.authenticate(map)
                 }.onSuccess {
-                    emitUiState(headers = Event(it.headers()))
+                    uiState.postValue(LoginDataState.Success(it))
                 }.onFailure {
                     it.printStackTrace()
-                    emitUiState(error = Event(it.message))
+                    uiState.postValue(LoginDataState.Error("Request Failed,Please try later."))
                 }
             }
-        } else {
-            emitUiState(error = Event("Please enter the valid details"))
         }
     }
 
-
-    private fun emitUiState(
-        showProgress: Boolean = false,
-        headers: Event<Headers>? = null,
-        error: Event<String?>? = null
-    ) {
-        val dataState =
-            LoginDataState(
-                showProgress,
-                headers,
-                error
-            )
-        _uiState.value = dataState
+    private fun isUserPasswordValid(): Boolean {
+        if (!UtilityClass.isPasswordValid(password)) {
+            uiState.postValue(LoginDataState.InValidPasswordState("Please enter a valid length password"))
+            return false
+        } else {
+            uiState.postValue(LoginDataState.ValidPasswordState)
+            return true
+        }
     }
-}
 
-data class LoginDataState(
-    val showProgress: Boolean,
-    val loginHeaders: Event<Headers>?,
-    val error: Event<String?>?
-)
+    private fun isUserEmailValid(): Boolean {
+        if (!UtilityClass.isEmailValid(inputName)) {
+            uiState.postValue(LoginDataState.InValidEmailState("Please enter a valid email ID"))
+            return false
+        } else {
+            uiState.postValue(LoginDataState.ValidEmailState)
+            return true
+        }
+    }
+
+    fun getObserverState() = uiState
+
+}

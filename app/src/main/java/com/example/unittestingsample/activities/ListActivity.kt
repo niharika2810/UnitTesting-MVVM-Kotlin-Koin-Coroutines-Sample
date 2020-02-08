@@ -13,6 +13,7 @@ import com.example.unittestingsample.activities.main.adapter.ItemAdapter
 import com.example.unittestingsample.activities.main.data.Headers
 import com.example.unittestingsample.activities.main.viewModel.ItemViewModel
 import com.example.unittestingsample.util.Constants
+import com.example.unittestingsample.util.ItemDataState
 import com.example.unittestingsample.util.UserHeadersStore
 import kotlinx.android.synthetic.main.activity_list.*
 
@@ -27,30 +28,46 @@ class ListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list)
-        val adapter = ItemAdapter()
-        recycler_view.apply {
-            layoutManager = LinearLayoutManager(this@ListActivity)
-            this.adapter = adapter
-        }
-
         setProperties()
 
         itemViewModel = getViewModel()
-        itemViewModel.uiState.observe(this, Observer {
-            val dataState = it ?: return@Observer
-            progress_bar.visibility = if (dataState.showProgress) View.VISIBLE else View.GONE
-            if (dataState.items != null && !dataState.items.consumed)
-                dataState.items.consume()?.let { movies ->
-                    adapter.submitList(movies)
-                }
-            if (dataState.error != null && !dataState.error.consumed)
-                dataState.error.consume()?.let { errorResource ->
-                    Toast.makeText(this, errorResource, Toast.LENGTH_SHORT)
-                        .show()
-                }
-        })
+        itemViewModel.showList()
+        observeStates()
 
     }
+
+    private fun observeStates() = observeListState()
+
+    private fun observeListState() {
+        itemViewModel.getObserverState().observe(this, itemObserver)
+    }
+
+    private val itemObserver = Observer<ItemDataState> { dataState ->
+        when (dataState) {
+
+            is ItemDataState.ShowProgress -> {
+                progress_bar.visibility =
+                    if (dataState.showProgress) View.VISIBLE else View.GONE
+
+            }
+            is ItemDataState.Success -> {
+                val adapter = ItemAdapter()
+                recycler_view.apply {
+                    layoutManager = LinearLayoutManager(this@ListActivity)
+                    this.adapter = adapter
+                }
+
+                progress_bar.visibility = View.GONE
+                adapter.submitList(dataState.body)
+            }
+            is ItemDataState.Error -> {
+                progress_bar.visibility = View.GONE
+                Toast.makeText(this, dataState.message, Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+    }
+
 
     private fun setProperties() {
         val headers = Headers()

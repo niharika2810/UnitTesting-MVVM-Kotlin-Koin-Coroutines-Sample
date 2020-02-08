@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import com.example.unittestingsample.R
 import com.example.unittestingsample.activities.main.viewModel.LoginViewModel
 import com.example.unittestingsample.util.Constants
+import com.example.unittestingsample.util.LoginDataState
 import com.example.unittestingsample.util.UserHeadersStore
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.Headers
@@ -27,32 +28,77 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        setButtonClick()
+    }
+
+    private fun setButtonClick() {
         btn_login.setOnClickListener {
             hideKeyboard(btn_login)
 
-            getKoin().setProperty(Constants.USERNAME, input_name.text.toString())
-            getKoin().setProperty(Constants.PASSWORD, input_password.text.toString())
+            setCredentialsProperty()
+
+
             loginViewModel = getViewModel()
+            observeStates()
             loginViewModel.doLogin()
 
-            loginViewModel.uiState.observe(this, Observer {
-                val dataState = it ?: return@Observer
-                progress_bar_login.visibility =
-                    if (dataState.showProgress) View.VISIBLE else View.GONE
-                if (dataState.loginHeaders != null && !dataState.loginHeaders.consumed)
-                    dataState.loginHeaders.consume()?.let { headers ->
-                        saveHeaders(headers)
-                        Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                        showItemsScreen()
-                    }
-                if (dataState.error != null && !dataState.error.consumed)
-                    dataState.error.consume()?.let { errorResource ->
-                        Toast.makeText(this, errorResource, Toast.LENGTH_SHORT).show()
-                        // handle error state
-                    }
-            })
         }
     }
+
+    private fun observeStates() = observeAuthenticationState()
+
+    private fun observeAuthenticationState() {
+        loginViewModel.getObserverState().observe(this, authenticationObserver)
+    }
+
+
+    private fun setCredentialsProperty() {
+        getKoin().setProperty(Constants.USERNAME, input_name.text.toString())
+        getKoin().setProperty(Constants.PASSWORD, input_password.text.toString())
+    }
+
+
+    private val authenticationObserver = Observer<LoginDataState> { dataState ->
+        when (dataState) {
+
+            is LoginDataState.ShowProgress -> {
+                progress_bar_login.visibility =
+                    if (dataState.showProgress) View.VISIBLE else View.GONE
+
+            }
+            is LoginDataState.Success -> {
+                progress_bar_login.visibility = View.GONE
+                if (dataState.body?.headers() != null && dataState.body.headers().size > 0) {
+                    saveHeaders(dataState.body.headers())
+                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                    showItemsScreen()
+                }
+            }
+            is LoginDataState.Error -> {
+                progress_bar_login.visibility = View.GONE
+                Toast.makeText(this, dataState.message, Toast.LENGTH_SHORT).show()
+            }
+            is LoginDataState.ValidEmailState -> {
+                text_input_name.error = null
+                text_input_name.isErrorEnabled = false
+
+            }
+            is LoginDataState.ValidPasswordState -> {
+                text_input_password.error = null
+                text_input_password.isErrorEnabled = false
+            }
+            is LoginDataState.InValidEmailState -> {
+                text_input_name.error = dataState.message
+                text_input_name.isErrorEnabled = true
+
+            }
+            is LoginDataState.InValidPasswordState -> {
+                text_input_password.error = dataState.message
+                text_input_password.isErrorEnabled = true
+            }
+        }
+    }
+
 
     fun hideKeyboard(view: View) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

@@ -1,15 +1,14 @@
 package com.example.unittestingsample.activities.main.viewModel
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
 import com.example.unittestingsample.activities.main.data.Headers
 import com.example.unittestingsample.activities.main.data.Item
 import com.example.unittestingsample.backend.ServiceUtil
 import com.example.unittestingsample.util.Constants
-import com.example.unittestingsample.util.Event
+import com.example.unittestingsample.util.ItemDataState
+import kotlinx.coroutines.launch
 
 /**
  * author Niharika Arora
@@ -21,11 +20,9 @@ class ItemViewModel(
 ) :
     ViewModel() {
 
+    val uiState = MutableLiveData<ItemDataState>()
 
-    private val _uiState = MutableLiveData<MovieDataState>()
-    val uiState: LiveData<MovieDataState> get() = _uiState
-
-    init {
+    fun showList() {
         retrieveItems()
     }
 
@@ -33,17 +30,17 @@ class ItemViewModel(
         if (headers.clientId.isNotEmpty() && headers.userId.isNotEmpty() && headers.accessToken.isNotEmpty()) {
             viewModelScope.launch {
                 runCatching {
-                    emitUiState(showProgress = true)
+                    uiState.postValue(ItemDataState.ShowProgress(true))
                     fetchItems()
                 }.onSuccess {
-                    emitUiState(items = Event(it))
+                    uiState.postValue(ItemDataState.Success(it))
                 }.onFailure {
                     it.printStackTrace()
-                    emitUiState(error = Event(it.message))
+                    uiState.postValue(ItemDataState.Error(it.message))
                 }
             }
         } else {
-            emitUiState(error = Event("Issues in Headers,please check"))
+            uiState.postValue(ItemDataState.Error("Issues in Headers,please check"))
         }
     }
 
@@ -55,18 +52,6 @@ class ItemViewModel(
         return serviceUtil.getList(map)
     }
 
-    private fun emitUiState(
-        showProgress: Boolean = false,
-        items: Event<List<Item>>? = null,
-        error: Event<String?>? = null
-    ) {
-        val dataState = MovieDataState(showProgress, items, error)
-        _uiState.value = dataState
-    }
-}
+    fun getObserverState() = uiState
 
-data class MovieDataState(
-    val showProgress: Boolean,
-    val items: Event<List<Item>>?,
-    val error: Event<String?>?
-)
+}

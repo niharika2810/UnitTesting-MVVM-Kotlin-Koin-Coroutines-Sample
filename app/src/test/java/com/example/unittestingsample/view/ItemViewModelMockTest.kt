@@ -9,7 +9,6 @@ import com.example.unittestingsample.activities.main.data.Item
 import com.example.unittestingsample.activities.main.viewModel.ItemViewModel
 import com.example.unittestingsample.backend.ServiceUtil
 import com.example.unittestingsample.util.ItemDataState
-import com.example.unittestingsample.util.LoginDataState
 import com.example.unittestingsample.util.UtilityClass
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -25,7 +24,6 @@ import org.mockito.MockitoAnnotations
 import org.powermock.api.mockito.PowerMockito.mockStatic
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
-import retrofit2.Response
 
 /**
  * author Niharika Arora
@@ -48,7 +46,7 @@ class ItemViewModelMockTest {
     @ExperimentalCoroutinesApi
     @Rule
     @JvmField
-    val coroutineTestRule = CoroutineTestRule()
+    val coRoutineTestRule = CoroutineTestRule()
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
@@ -66,8 +64,11 @@ class ItemViewModelMockTest {
         mockStatic(UtilityClass::class.java)
         mockStatic(TextUtils::class.java)
         MockitoAnnotations.initMocks(this)
-        items = ArrayList<Item>()
+        items = ArrayList()
         headers = Headers()
+        itemViewModel = ItemViewModel(serviceUtil).apply {
+            uiState.observeForever(mockObserverForStates)
+        }
     }
 
     @ExperimentalCoroutinesApi
@@ -78,7 +79,7 @@ class ItemViewModelMockTest {
         runBlockingTest {
             `when`(serviceUtil.getList(headersMap)).thenReturn(items)
 
-            itemViewModel.showList()
+            itemViewModel.showList(headers)
 
             verify(mockObserverForStates).onChanged(ItemDataState.Error(ArgumentMatchers.any()))
             verifyNoMoreInteractions(mockObserverForStates)
@@ -93,7 +94,7 @@ class ItemViewModelMockTest {
         runBlockingTest {
             `when`(serviceUtil.getList(headersMap)).thenReturn(items)
 
-            itemViewModel.showList()
+            itemViewModel.showList(headers)
 
             verify(mockObserverForStates).onChanged(ItemDataState.ShowProgress(true))
             verify(mockObserverForStates, times(2)).onChanged(
@@ -113,7 +114,7 @@ class ItemViewModelMockTest {
 
             `when`(serviceUtil.getList(headersMap)).thenThrow(error)
 
-            itemViewModel.showList()
+            itemViewModel.showList(headers)
 
             verify(mockObserverForStates).onChanged(ItemDataState.ShowProgress(true))
             verify(
@@ -128,9 +129,7 @@ class ItemViewModelMockTest {
         headers.clientId = clientId
         headers.accessToken = accessToken
         headers.userId = userId
-        itemViewModel = ItemViewModel(serviceUtil, headers).apply {
-            uiState.observeForever(mockObserverForStates)
-        }
+
     }
 
     private inline fun <reified T> mock(): T = mock(T::class.java)

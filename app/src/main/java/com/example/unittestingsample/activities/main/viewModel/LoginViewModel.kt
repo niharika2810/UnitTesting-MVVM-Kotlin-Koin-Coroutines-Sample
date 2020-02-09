@@ -14,19 +14,18 @@ import kotlinx.coroutines.launch
  */
 
 class LoginViewModel constructor(
-    private val serviceUtil: ServiceUtil,
-    private val inputName: String, private val password: String
+    private val serviceUtil: ServiceUtil
 ) : ViewModel() {
     private lateinit var map: HashMap<String, String>
     val uiState = MutableLiveData<LoginDataState>()
 
-    fun doLogin() {
-        if (isUserEmailValid() && isUserPasswordValid()) {
+    fun doLogin(userEmail: String, password: String) {
+        if (isUserEmailValid(userEmail) && isUserPasswordValid(password)) {
             viewModelScope.launch {
                 runCatching {
                     uiState.postValue(LoginDataState.ShowProgress(true))
                     map = HashMap()
-                    map[Constants.USERNAME] = inputName
+                    map[Constants.USERNAME] = userEmail
                     map[Constants.PASSWORD] = password
                     serviceUtil.authenticate(map)
                 }.onSuccess {
@@ -39,7 +38,7 @@ class LoginViewModel constructor(
         }
     }
 
-    private fun isUserPasswordValid(): Boolean {
+    private fun isUserPasswordValid(password: String): Boolean {
         if (!UtilityClass.isPasswordValid(password)) {
             uiState.postValue(LoginDataState.InValidPasswordState("Please enter a valid length password"))
             return false
@@ -49,8 +48,8 @@ class LoginViewModel constructor(
         }
     }
 
-    private fun isUserEmailValid(): Boolean {
-        if (!UtilityClass.isEmailValid(inputName)) {
+    private fun isUserEmailValid(userEmail: String): Boolean {
+        if (!UtilityClass.isEmailValid(userEmail)) {
             uiState.postValue(LoginDataState.InValidEmailState("Please enter a valid email ID"))
             return false
         } else {

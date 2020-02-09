@@ -15,7 +15,6 @@ import com.example.unittestingsample.util.LoginDataState
 import com.example.unittestingsample.util.UserHeadersStore
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.Headers
-import org.koin.android.ext.android.getKoin
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 
 /**
@@ -28,20 +27,19 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        loginViewModel = getViewModel()
+        observeStates()
+
         setButtonClick()
     }
 
     private fun setButtonClick() {
+
         btn_login.setOnClickListener {
             hideKeyboard(btn_login)
 
-            setCredentialsProperty()
-
-
-            loginViewModel = getViewModel()
-            observeStates()
-            loginViewModel.doLogin()
-
+            loginViewModel.doLogin(input_name.text.toString(), input_password.text.toString())
         }
     }
 
@@ -49,12 +47,6 @@ class LoginActivity : AppCompatActivity() {
 
     private fun observeAuthenticationState() {
         loginViewModel.getObserverState().observe(this, authenticationObserver)
-    }
-
-
-    private fun setCredentialsProperty() {
-        getKoin().setProperty(Constants.USERNAME, input_name.text.toString())
-        getKoin().setProperty(Constants.PASSWORD, input_password.text.toString())
     }
 
 

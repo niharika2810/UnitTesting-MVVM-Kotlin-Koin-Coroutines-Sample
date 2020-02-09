@@ -13,8 +13,7 @@ import com.example.unittestingsample.util.Constants
 val itemModule = module {
     viewModel {
         ItemViewModel(
-            get(),
-            headers = getProperty(Constants.HEADERS)
+            get()
         )
 
     }
@@ -22,9 +21,7 @@ val itemModule = module {
 
     viewModel {
         LoginViewModel(
-            get(),
-            inputName = getProperty(Constants.USERNAME),
-            password = getProperty(Constants.PASSWORD)
+            get()
         )
     }
 

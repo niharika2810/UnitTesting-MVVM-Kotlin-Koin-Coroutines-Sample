@@ -1,4 +1,4 @@
-package org.koin.sampleapp.view
+package com.example.unittestingsample.view
 
 import android.text.TextUtils
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -48,7 +48,7 @@ class LoginViewModelMockTest {
     @ExperimentalCoroutinesApi
     @Rule
     @JvmField
-    val coroutineTestRule = CoroutineTestRule()
+    val coRoutineTestRule = CoroutineTestRule()
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
@@ -65,19 +65,26 @@ class LoginViewModelMockTest {
         MockitoAnnotations.initMocks(this)
         loginData = LoginModel.LoginData("User-Id", "Email")
         loginModel = LoginModel(loginData)
+        loginViewModel = LoginViewModel(serviceUtil).apply {
+            uiState.observeForever(mockObserverForStates)
+        }
     }
 
     @ExperimentalCoroutinesApi
     @Test
     fun testIfEmailInvalidAndReport() {
-        initValues("", "", false, false)
+        initValues(false, false)
 
         runBlockingTest {
             `when`(serviceUtil.authenticate(map)).thenReturn(Response.success(loginModel))
 
-            loginViewModel.doLogin()
+            loginViewModel.doLogin("", "")
 
-            verify(mockObserverForStates).onChanged(LoginDataState.InValidEmailState(ArgumentMatchers.any()))
+            verify(mockObserverForStates).onChanged(
+                LoginDataState.InValidEmailState(
+                    ArgumentMatchers.any()
+                )
+            )
             verifyNoMoreInteractions(mockObserverForStates)
         }
     }
@@ -85,15 +92,19 @@ class LoginViewModelMockTest {
     @ExperimentalCoroutinesApi
     @Test
     fun testIPasswordInvalidAndReport() {
-        initValues("abc@example.com", "123", true, false)
+        initValues(true, false)
 
         runBlockingTest {
             `when`(serviceUtil.authenticate(map)).thenReturn(Response.success(loginModel))
 
-            loginViewModel.doLogin()
+            loginViewModel.doLogin("abc@example.com", "123")
 
             verify(mockObserverForStates).onChanged(LoginDataState.ValidEmailState)
-            verify(mockObserverForStates).onChanged(LoginDataState.InValidPasswordState(ArgumentMatchers.any()))
+            verify(mockObserverForStates, times(2)).onChanged(
+                LoginDataState.InValidPasswordState(
+                    ArgumentMatchers.any()
+                )
+            )
             verifyNoMoreInteractions(mockObserverForStates)
         }
     }
@@ -101,12 +112,12 @@ class LoginViewModelMockTest {
     @ExperimentalCoroutinesApi
     @Test
     fun testIfEmailAndPasswordValidDoLogin() {
-        initValues("abc@example.com", "12345678", true, true)
+        initValues(true, true)
 
         runBlockingTest {
             `when`(serviceUtil.authenticate(map)).thenReturn(Response.success(loginModel))
 
-            loginViewModel.doLogin()
+            loginViewModel.doLogin("abc@example.com", "12345678")
 
             verify(mockObserverForStates).onChanged(LoginDataState.ShowProgress(true))
             verify(mockObserverForStates).onChanged(LoginDataState.ValidEmailState)
@@ -123,14 +134,14 @@ class LoginViewModelMockTest {
     @ExperimentalCoroutinesApi
     @Test
     fun testThrowErrorOnLoginFailed() {
-        initValues("abc@example.com", "12345678", true, true)
+        initValues(true, true)
 
         runBlocking {
             val error = RuntimeException()
 
             `when`(serviceUtil.authenticate(map)).thenThrow(error)
 
-            loginViewModel.doLogin()
+            loginViewModel.doLogin("abc@example.com", "12345678")
 
             verify(mockObserverForStates).onChanged(LoginDataState.ShowProgress(true))
             verify(mockObserverForStates).onChanged(LoginDataState.ValidEmailState)
@@ -144,14 +155,9 @@ class LoginViewModelMockTest {
     }
 
     private fun initValues(
-        email: String,
-        password: String,
         isEmailValid: Boolean,
         isPasswordValid: Boolean
     ) {
-        loginViewModel = LoginViewModel(serviceUtil, email, password).apply {
-            uiState.observeForever(mockObserverForStates)
-        }
         `when`(UtilityClass.isEmailValid(ArgumentMatchers.anyString())).thenReturn(isEmailValid)
         `when`(UtilityClass.isPasswordValid(ArgumentMatchers.anyString())).thenReturn(
             isPasswordValid

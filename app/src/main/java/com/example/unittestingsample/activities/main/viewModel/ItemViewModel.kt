@@ -15,23 +15,22 @@ import kotlinx.coroutines.launch
  */
 
 class ItemViewModel(
-    private val serviceUtil: ServiceUtil,
-    private val headers: Headers
+    private val serviceUtil: ServiceUtil
 ) :
     ViewModel() {
 
     val uiState = MutableLiveData<ItemDataState>()
 
-    fun showList() {
-        retrieveItems()
+    fun showList(headers: Headers) {
+        retrieveItems(headers)
     }
 
-    private fun retrieveItems() {
+    private fun retrieveItems(headers: Headers) {
         if (headers.clientId.isNotEmpty() && headers.userId.isNotEmpty() && headers.accessToken.isNotEmpty()) {
             viewModelScope.launch {
                 runCatching {
                     uiState.postValue(ItemDataState.ShowProgress(true))
-                    fetchItems()
+                    fetchItems(headers)
                 }.onSuccess {
                     uiState.postValue(ItemDataState.Success(it))
                 }.onFailure {
@@ -44,7 +43,7 @@ class ItemViewModel(
         }
     }
 
-    private suspend fun fetchItems(): List<Item> {
+    private suspend fun fetchItems(headers: Headers): List<Item> {
         val map = HashMap<String, String>()
         map[Constants.CLIENT] = headers.clientId
         map[Constants.USER_ID] = headers.userId

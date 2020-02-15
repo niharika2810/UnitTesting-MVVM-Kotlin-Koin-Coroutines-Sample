@@ -28,6 +28,7 @@ import retrofit2.Response
 /**
  * author Niharika Arora
  */
+@ExperimentalCoroutinesApi
 @RunWith(PowerMockRunner::class)
 @PrepareForTest(UtilityClass::class, TextUtils::class)
 class LoginViewModelMockTest {
@@ -45,7 +46,6 @@ class LoginViewModelMockTest {
     @JvmField
     var instantExecutorRule = InstantTaskExecutorRule()
 
-    @ExperimentalCoroutinesApi
     @Rule
     @JvmField
     val coRoutineTestRule = CoroutineTestRule()
@@ -70,7 +70,6 @@ class LoginViewModelMockTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun testIfEmailInvalidAndReport() {
         initValues(false, false)
@@ -89,7 +88,6 @@ class LoginViewModelMockTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun testIPasswordInvalidAndReport() {
         initValues(true, false)
@@ -109,7 +107,6 @@ class LoginViewModelMockTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun testIfEmailAndPasswordValidDoLogin() {
         initValues(true, true)
@@ -131,7 +128,6 @@ class LoginViewModelMockTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun testThrowErrorOnLoginFailed() {
         initValues(true, true)
@@ -164,6 +160,7 @@ class LoginViewModelMockTest {
         )
     }
 
+    //A helper function to mock classes with types (generics)
     private inline fun <reified T> mock(): T = mock(T::class.java)
 
 }

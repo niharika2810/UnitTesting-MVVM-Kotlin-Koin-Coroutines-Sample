@@ -28,12 +28,13 @@ import org.powermock.modules.junit4.PowerMockRunner
 /**
  * author Niharika Arora
  */
+@ExperimentalCoroutinesApi
 @RunWith(PowerMockRunner::class)
 @PrepareForTest(UtilityClass::class, TextUtils::class)
 class ItemViewModelMockTest {
     private val serviceUtil: ServiceUtil = mock()
 
-    lateinit var itemViewModel: ItemViewModel
+    private lateinit var itemViewModel: ItemViewModel
 
     @Mock
     private lateinit var items: ArrayList<Item>
@@ -43,7 +44,6 @@ class ItemViewModelMockTest {
     @JvmField
     var instantExecutorRule = InstantTaskExecutorRule()
 
-    @ExperimentalCoroutinesApi
     @Rule
     @JvmField
     val coRoutineTestRule = CoroutineTestRule()
@@ -71,7 +71,6 @@ class ItemViewModelMockTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun testIfHeadersMissingAndReport() {
         initValues("ClientId", "AccessToken", "")
@@ -86,7 +85,6 @@ class ItemViewModelMockTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun testFetchListFromServer() {
         initValues("abc@example.com", "12345678", "sdsds")
@@ -104,7 +102,6 @@ class ItemViewModelMockTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun testThrowErrorOnListCallbackFailed() {
         initValues("abc@example.com", "12345678", "userId1245")

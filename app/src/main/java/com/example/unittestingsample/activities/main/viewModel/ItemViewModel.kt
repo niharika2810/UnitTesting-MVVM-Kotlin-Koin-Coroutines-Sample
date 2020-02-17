@@ -29,7 +29,7 @@ class ItemViewModel(
         if (headers.clientId.isNotEmpty() && headers.userId.isNotEmpty() && headers.accessToken.isNotEmpty()) {
             viewModelScope.launch {
                 runCatching {
-                    uiState.postValue(ItemDataState.ShowProgress(true))
+                    uiState.postValue(ItemDataState.ShowProgress)
                     fetchItems(headers)
                 }.onSuccess {
                     uiState.postValue(ItemDataState.Success(it))

@@ -20,10 +20,9 @@ class LoginViewModel constructor(
     val uiState = MutableLiveData<LoginDataState>()
 
     fun doLogin(userEmail: String, password: String) {
-        if (isUserEmailValid(userEmail) && isUserPasswordValid(password)) {
+        if (areUserCredentialsValid(userEmail, password)) {
             viewModelScope.launch {
                 runCatching {
-                    uiState.postValue(LoginDataState.ShowProgress(true))
                     map = HashMap()
                     map[Constants.USERNAME] = userEmail
                     map[Constants.PASSWORD] = password
@@ -38,22 +37,16 @@ class LoginViewModel constructor(
         }
     }
 
-    private fun isUserPasswordValid(password: String): Boolean {
-        if (!UtilityClass.isPasswordValid(password)) {
-            uiState.postValue(LoginDataState.InValidPasswordState("Please enter a valid length password"))
-            return false
-        } else {
-            uiState.postValue(LoginDataState.ValidPasswordState)
-            return true
-        }
-    }
 
-    private fun isUserEmailValid(userEmail: String): Boolean {
+    private fun areUserCredentialsValid(userEmail: String, password: String): Boolean {
         if (!UtilityClass.isEmailValid(userEmail)) {
             uiState.postValue(LoginDataState.InValidEmailState("Please enter a valid email ID"))
             return false
+        } else if (!UtilityClass.isPasswordValid(password)) {
+            uiState.postValue(LoginDataState.InValidPasswordState("Please enter a valid length password"))
+            return false
         } else {
-            uiState.postValue(LoginDataState.ValidEmailState)
+            uiState.postValue(LoginDataState.ValidCredentialsState)
             return true
         }
     }

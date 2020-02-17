@@ -45,9 +45,7 @@ class ListActivity : AppCompatActivity() {
         when (dataState) {
 
             is ItemDataState.ShowProgress -> {
-                progress_bar.visibility =
-                    if (dataState.showProgress) View.VISIBLE else View.GONE
-
+                progress_bar.visibility = View.VISIBLE
             }
             is ItemDataState.Success -> {
                 val adapter = ItemAdapter()

@@ -12,9 +12,7 @@ import com.example.unittestingsample.util.UtilityClass
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
@@ -70,6 +68,12 @@ class LoginViewModelMockTest {
         }
     }
 
+    @After
+    @Throws(Exception::class)
+    fun tearDownClass() {
+        // Code executed after the last test method
+    }
+
     @Test
     fun testIfEmailInvalidAndReport() {
         initValues(false, false)
@@ -97,8 +101,7 @@ class LoginViewModelMockTest {
 
             loginViewModel.doLogin("abc@example.com", "123")
 
-            verify(mockObserverForStates).onChanged(LoginDataState.ValidEmailState)
-            verify(mockObserverForStates, times(2)).onChanged(
+            verify(mockObserverForStates).onChanged(
                 LoginDataState.InValidPasswordState(
                     ArgumentMatchers.any()
                 )
@@ -116,14 +119,9 @@ class LoginViewModelMockTest {
 
             loginViewModel.doLogin("abc@example.com", "12345678")
 
-            verify(mockObserverForStates).onChanged(LoginDataState.ShowProgress(true))
-            verify(mockObserverForStates).onChanged(LoginDataState.ValidEmailState)
-            verify(mockObserverForStates).onChanged(LoginDataState.ValidPasswordState)
-            verify(mockObserverForStates, times(4)).onChanged(
-                LoginDataState.Success(
-                    ArgumentMatchers.any()
-                )
-            )
+            verify(mockObserverForStates).onChanged(LoginDataState.ValidCredentialsState)
+            verify(mockObserverForStates, times(2))
+                .onChanged(LoginDataState.Success(ArgumentMatchers.any()))
             verifyNoMoreInteractions(mockObserverForStates)
         }
     }
@@ -139,13 +137,9 @@ class LoginViewModelMockTest {
 
             loginViewModel.doLogin("abc@example.com", "12345678")
 
-            verify(mockObserverForStates).onChanged(LoginDataState.ShowProgress(true))
-            verify(mockObserverForStates).onChanged(LoginDataState.ValidEmailState)
-            verify(mockObserverForStates).onChanged(LoginDataState.ValidPasswordState)
-            verify(
-                mockObserverForStates,
-                times(4)
-            ).onChanged(LoginDataState.Error(ArgumentMatchers.any()))
+            verify(mockObserverForStates).onChanged(LoginDataState.ValidCredentialsState)
+            verify(mockObserverForStates, times(2))
+                .onChanged(LoginDataState.Error(ArgumentMatchers.any()))
             verifyNoMoreInteractions(mockObserverForStates)
         }
     }

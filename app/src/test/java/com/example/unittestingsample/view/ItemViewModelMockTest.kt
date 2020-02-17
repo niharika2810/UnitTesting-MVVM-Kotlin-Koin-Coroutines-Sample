@@ -94,7 +94,7 @@ class ItemViewModelMockTest {
 
             itemViewModel.showList(headers)
 
-            verify(mockObserverForStates).onChanged(ItemDataState.ShowProgress(true))
+            verify(mockObserverForStates).onChanged(ItemDataState.ShowProgress)
             verify(mockObserverForStates, times(2)).onChanged(
                 ItemDataState.Success(ArgumentMatchers.any())
             )
@@ -113,7 +113,7 @@ class ItemViewModelMockTest {
 
             itemViewModel.showList(headers)
 
-            verify(mockObserverForStates).onChanged(ItemDataState.ShowProgress(true))
+            verify(mockObserverForStates).onChanged(ItemDataState.ShowProgress)
             verify(
                 mockObserverForStates,
                 times(2)

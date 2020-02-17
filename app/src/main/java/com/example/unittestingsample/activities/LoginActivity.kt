@@ -52,12 +52,6 @@ class LoginActivity : AppCompatActivity() {
 
     private val authenticationObserver = Observer<LoginDataState> { dataState ->
         when (dataState) {
-
-            is LoginDataState.ShowProgress -> {
-                progress_bar_login.visibility =
-                    if (dataState.showProgress) View.VISIBLE else View.GONE
-
-            }
             is LoginDataState.Success -> {
                 progress_bar_login.visibility = View.GONE
                 if (dataState.body?.headers() != null && dataState.body.headers().size > 0) {
@@ -70,25 +64,40 @@ class LoginActivity : AppCompatActivity() {
                 progress_bar_login.visibility = View.GONE
                 Toast.makeText(this, dataState.message, Toast.LENGTH_SHORT).show()
             }
-            is LoginDataState.ValidEmailState -> {
-                text_input_name.error = null
-                text_input_name.isErrorEnabled = false
-
-            }
-            is LoginDataState.ValidPasswordState -> {
-                text_input_password.error = null
-                text_input_password.isErrorEnabled = false
+            is LoginDataState.ValidCredentialsState -> {
+                progress_bar_login.visibility = View.VISIBLE
+                resetEmailError()
+                resetPasswordError()
             }
             is LoginDataState.InValidEmailState -> {
-                text_input_name.error = dataState.message
-                text_input_name.isErrorEnabled = true
+                setEmailError(dataState)
 
             }
             is LoginDataState.InValidPasswordState -> {
-                text_input_password.error = dataState.message
-                text_input_password.isErrorEnabled = true
+                resetEmailError()
+                setPasswordError(dataState)
             }
         }
+    }
+
+    private fun setEmailError(dataState: LoginDataState.InValidEmailState) {
+        text_input_name.error = dataState.message
+        text_input_name.isErrorEnabled = true
+    }
+
+    private fun setPasswordError(dataState: LoginDataState.InValidPasswordState) {
+        text_input_password.error = dataState.message
+        text_input_password.isErrorEnabled = true
+    }
+
+    private fun resetEmailError() {
+        text_input_name.error = null
+        text_input_name.isErrorEnabled = false
+    }
+
+    private fun resetPasswordError() {
+        text_input_password.error = null
+        text_input_password.isErrorEnabled = false
     }
 
 

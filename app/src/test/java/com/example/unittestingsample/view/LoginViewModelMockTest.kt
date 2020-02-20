@@ -1,6 +1,5 @@
 package com.example.unittestingsample.view
 
-import android.text.TextUtils
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.example.unittestingsample.CoroutineTestRule
@@ -17,7 +16,6 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
 import org.powermock.api.mockito.PowerMockito.mockStatic
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
@@ -28,7 +26,7 @@ import retrofit2.Response
  */
 @ExperimentalCoroutinesApi
 @RunWith(PowerMockRunner::class)
-@PrepareForTest(UtilityClass::class, TextUtils::class)
+@PrepareForTest(UtilityClass::class)
 class LoginViewModelMockTest {
 
     companion object {
@@ -73,7 +71,6 @@ class LoginViewModelMockTest {
     @Before
     fun before() {
         mockStatic(UtilityClass::class.java)
-        mockStatic(TextUtils::class.java)
         loginViewModel = LoginViewModel(serviceUtil).apply {
             uiState.observeForever(mockObserverForStates)
         }

@@ -30,15 +30,33 @@ import retrofit2.Response
 @RunWith(PowerMockRunner::class)
 @PrepareForTest(UtilityClass::class, TextUtils::class)
 class LoginViewModelMockTest {
-    private val serviceUtil: ServiceUtil = mock()
 
-    lateinit var loginViewModel: LoginViewModel
+    companion object {
+        init {
+            //Init
+        }
+
+        @BeforeClass
+        @JvmStatic
+        fun setup() {
+            // things to execute once and keep around for the class
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun teardown() {
+            // clean up after this class, leave nothing dirty behind
+        }
+    }
 
     @Mock
     private lateinit var loginModel: LoginModel
 
-    @Mock
-    private lateinit var loginData: LoginModel.LoginData
+    private val serviceUtil: ServiceUtil = mock()
+
+    private val mockObserverForStates = mock<Observer<LoginDataState>>()
+
+    lateinit var loginViewModel: LoginViewModel
 
     @Rule
     @JvmField
@@ -48,10 +66,6 @@ class LoginViewModelMockTest {
     @JvmField
     val coRoutineTestRule = CoroutineTestRule()
 
-    @get:Rule
-    val rule = InstantTaskExecutorRule()
-
-    private val mockObserverForStates = mock<Observer<LoginDataState>>()
 
     @Mock
     private lateinit var map: HashMap<String, String>
@@ -60,9 +74,6 @@ class LoginViewModelMockTest {
     fun before() {
         mockStatic(UtilityClass::class.java)
         mockStatic(TextUtils::class.java)
-        MockitoAnnotations.initMocks(this)
-        loginData = LoginModel.LoginData("User-Id", "Email")
-        loginModel = LoginModel(loginData)
         loginViewModel = LoginViewModel(serviceUtil).apply {
             uiState.observeForever(mockObserverForStates)
         }
@@ -156,5 +167,4 @@ class LoginViewModelMockTest {
 
     //A helper function to mock classes with types (generics)
     private inline fun <reified T> mock(): T = mock(T::class.java)
-
 }

@@ -50,11 +50,12 @@ class LoginViewModelMockTest {
     @Mock
     private lateinit var loginModel: LoginModel
 
-    private val serviceUtil: ServiceUtil = mock()
+    @Mock
+    private lateinit var serviceUtil: ServiceUtil
 
     private val mockObserverForStates = mock<Observer<LoginDataState>>()
 
-    lateinit var loginViewModel: LoginViewModel
+    private lateinit var loginViewModel: LoginViewModel
 
     @Rule
     @JvmField

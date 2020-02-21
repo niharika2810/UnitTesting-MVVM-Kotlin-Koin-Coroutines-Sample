@@ -1,7 +1,5 @@
 package com.example.unittestingsample.util;
 
-import android.text.TextUtils;
-
 import java.util.regex.Pattern;
 
 /**
@@ -14,7 +12,7 @@ public class UtilityClass {
 
 
     public static boolean isEmailValid(String email) {
-        if (TextUtils.isEmpty(email)) {
+        if (email.isEmpty()) {
             return false;
         } else {
             return EMAIL.matcher(email).matches();

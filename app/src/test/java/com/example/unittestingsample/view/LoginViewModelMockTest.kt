@@ -1,6 +1,5 @@
 package com.example.unittestingsample.view
 
-import android.text.TextUtils
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.example.unittestingsample.CoroutineTestRule
@@ -17,7 +16,6 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
 import org.powermock.api.mockito.PowerMockito.mockStatic
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
@@ -28,17 +26,36 @@ import retrofit2.Response
  */
 @ExperimentalCoroutinesApi
 @RunWith(PowerMockRunner::class)
-@PrepareForTest(UtilityClass::class, TextUtils::class)
+@PrepareForTest(UtilityClass::class)
 class LoginViewModelMockTest {
-    private val serviceUtil: ServiceUtil = mock()
 
-    lateinit var loginViewModel: LoginViewModel
+    companion object {
+        init {
+            //Init
+        }
+
+        @BeforeClass
+        @JvmStatic
+        fun setup() {
+            // things to execute once and keep around for the class
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun teardown() {
+            // clean up after this class, leave nothing dirty behind
+        }
+    }
 
     @Mock
     private lateinit var loginModel: LoginModel
 
     @Mock
-    private lateinit var loginData: LoginModel.LoginData
+    private lateinit var serviceUtil: ServiceUtil
+
+    private val mockObserverForStates = mock<Observer<LoginDataState>>()
+
+    private lateinit var loginViewModel: LoginViewModel
 
     @Rule
     @JvmField
@@ -48,10 +65,6 @@ class LoginViewModelMockTest {
     @JvmField
     val coRoutineTestRule = CoroutineTestRule()
 
-    @get:Rule
-    val rule = InstantTaskExecutorRule()
-
-    private val mockObserverForStates = mock<Observer<LoginDataState>>()
 
     @Mock
     private lateinit var map: HashMap<String, String>
@@ -59,10 +72,6 @@ class LoginViewModelMockTest {
     @Before
     fun before() {
         mockStatic(UtilityClass::class.java)
-        mockStatic(TextUtils::class.java)
-        MockitoAnnotations.initMocks(this)
-        loginData = LoginModel.LoginData("User-Id", "Email")
-        loginModel = LoginModel(loginData)
         loginViewModel = LoginViewModel(serviceUtil).apply {
             uiState.observeForever(mockObserverForStates)
         }
@@ -156,5 +165,4 @@ class LoginViewModelMockTest {
 
     //A helper function to mock classes with types (generics)
     private inline fun <reified T> mock(): T = mock(T::class.java)
-
 }

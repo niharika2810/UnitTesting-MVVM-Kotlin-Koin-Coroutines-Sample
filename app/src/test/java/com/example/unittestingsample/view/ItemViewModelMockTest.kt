@@ -1,6 +1,5 @@
 package org.koin.sampleapp.view
 
-import android.text.TextUtils
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.example.unittestingsample.CoroutineTestRule
@@ -9,7 +8,6 @@ import com.example.unittestingsample.activities.main.data.Item
 import com.example.unittestingsample.activities.main.viewModel.ItemViewModel
 import com.example.unittestingsample.backend.ServiceUtil
 import com.example.unittestingsample.util.ItemDataState
-import com.example.unittestingsample.util.UtilityClass
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
@@ -20,9 +18,6 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
-import org.powermock.api.mockito.PowerMockito.mockStatic
-import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
 
 /**
@@ -30,7 +25,6 @@ import org.powermock.modules.junit4.PowerMockRunner
  */
 @ExperimentalCoroutinesApi
 @RunWith(PowerMockRunner::class)
-@PrepareForTest(UtilityClass::class, TextUtils::class)
 class ItemViewModelMockTest {
     private val serviceUtil: ServiceUtil = mock()
 
@@ -61,11 +55,6 @@ class ItemViewModelMockTest {
 
     @Before
     fun before() {
-        mockStatic(UtilityClass::class.java)
-        mockStatic(TextUtils::class.java)
-        MockitoAnnotations.initMocks(this)
-        items = ArrayList()
-        headers = Headers()
         itemViewModel = ItemViewModel(serviceUtil).apply {
             uiState.observeForever(mockObserverForStates)
         }
@@ -73,7 +62,7 @@ class ItemViewModelMockTest {
 
     @Test
     fun testIfHeadersMissingAndReport() {
-        initValues("ClientId", "AccessToken", "")
+        initValues("ClientId", "", "")
 
         runBlockingTest {
             `when`(serviceUtil.getList(headersMap)).thenReturn(items)
@@ -87,7 +76,7 @@ class ItemViewModelMockTest {
 
     @Test
     fun testFetchListFromServer() {
-        initValues("abc@example.com", "12345678", "sdsds")
+        initValues("ClientId", "AccessToken", "UserId")
 
         runBlockingTest {
             `when`(serviceUtil.getList(headersMap)).thenReturn(items)
@@ -104,7 +93,7 @@ class ItemViewModelMockTest {
 
     @Test
     fun testThrowErrorOnListCallbackFailed() {
-        initValues("abc@example.com", "12345678", "userId1245")
+        initValues("ClientId", "AccessToken", "UserId")
 
         runBlocking {
             val error = RuntimeException()
@@ -123,10 +112,9 @@ class ItemViewModelMockTest {
     }
 
     private fun initValues(clientId: String, accessToken: String, userId: String) {
-        headers.clientId = clientId
-        headers.accessToken = accessToken
-        headers.userId = userId
-
+        `when`(headers.clientId).thenReturn(clientId)
+        `when`(headers.accessToken).thenReturn(accessToken)
+        `when`(headers.userId).thenReturn(userId)
     }
 
     private inline fun <reified T> mock(): T = mock(T::class.java)

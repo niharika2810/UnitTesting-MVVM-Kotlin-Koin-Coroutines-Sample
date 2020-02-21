@@ -28,7 +28,11 @@ class LoginViewModel constructor(
                     map[Constants.PASSWORD] = password
                     serviceUtil.authenticate(map)
                 }.onSuccess {
-                    uiState.postValue(LoginDataState.Success(it))
+                    if(it.isSuccessful) {
+                        uiState.postValue(LoginDataState.Success(it))
+                    }else{
+                        uiState.postValue(LoginDataState.Error(it.message()))
+                    }
                 }.onFailure {
                     it.printStackTrace()
                     uiState.postValue(LoginDataState.Error("Request Failed,Please try later."))

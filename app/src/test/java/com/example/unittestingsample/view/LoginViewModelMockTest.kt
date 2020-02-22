@@ -106,6 +106,7 @@ class LoginViewModelMockTest {
         initValues(true, false)
 
         runBlockingTest {
+
             `when`(serviceUtil.authenticate(map)).thenReturn(Response.success(loginModel))
 
             loginViewModel.doLogin("abc@example.com", "123")

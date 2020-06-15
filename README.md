@@ -1,4 +1,4 @@
-# UnitTestingSample
+# UnitTesting-MVVM-Kotlin-Koin-Coroutines-Sample
 
 This repository covers sample unit testing for Login and listing screens using MVVM,Kotlin,Coroutines and Koin.
 

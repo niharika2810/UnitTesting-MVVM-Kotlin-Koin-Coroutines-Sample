@@ -22,7 +22,8 @@ import org.powermock.modules.junit4.PowerMockRunner
 import retrofit2.Response
 
 /**
- * author Niharika Arora
+ * @author Niharika Arora
+ * A Class covering LoginViewModel test cases
  */
 @ExperimentalCoroutinesApi
 @RunWith(PowerMockRunner::class)
@@ -30,20 +31,19 @@ import retrofit2.Response
 class LoginViewModelMockTest {
 
     companion object {
-        init {
-            //Init
-        }
+        private const val EMAIL = "abc@example.com"
+        private const val PASSWORD = "123456"
 
         @BeforeClass
         @JvmStatic
         fun setup() {
-            // things to execute once and keep around for the class
+            println("startup")
         }
 
         @AfterClass
         @JvmStatic
         fun teardown() {
-            // clean up after this class, leave nothing dirty behind
+            println("teardown")
         }
     }
 
@@ -65,7 +65,6 @@ class LoginViewModelMockTest {
     @JvmField
     val coRoutineTestRule = CoroutineTestRule()
 
-
     @Mock
     private lateinit var map: HashMap<String, String>
 
@@ -73,86 +72,84 @@ class LoginViewModelMockTest {
     fun before() {
         mockStatic(UtilityClass::class.java)
         loginViewModel = LoginViewModel(serviceUtil).apply {
-            uiState.observeForever(mockObserverForStates)
+            getObserverState().observeForever(mockObserverForStates)
         }
     }
 
-    @After
-    @Throws(Exception::class)
-    fun tearDownClass() {
-        // Code executed after the last test method
-    }
-
     @Test
-    fun testIfEmailInvalidAndReport() {
-        initValues(false, false)
+    fun testIfEmailInvalid_ReportEmailError() {
+        //Arrange
+        initValues(isEmailValid = false, isPasswordValid = false)
 
-        runBlockingTest {
-            `when`(serviceUtil.authenticate(map)).thenReturn(Response.success(loginModel))
+        //Act
+        loginViewModel.doLogin("", "")
 
-            loginViewModel.doLogin("", "")
-
-            verify(mockObserverForStates).onChanged(
-                LoginDataState.InValidEmailState(
-                    ArgumentMatchers.any()
-                )
+        //Assert
+        verify(mockObserverForStates).onChanged(
+            LoginDataState.InValidEmailState(
+                ArgumentMatchers.any()
             )
-            verifyNoMoreInteractions(mockObserverForStates)
-        }
+        )
+        verifyNoMoreInteractions(mockObserverForStates)
     }
 
     @Test
-    fun testIPasswordInvalidAndReport() {
-        initValues(true, false)
+    fun testIPasswordInvalid_ReportPasswordError() {
+        //Arrange
+        initValues(isEmailValid = true, isPasswordValid = false)
 
-        runBlockingTest {
-            `when`(serviceUtil.authenticate(map)).thenReturn(Response.success(loginModel))
+        //Act
+        loginViewModel.doLogin(EMAIL, PASSWORD)
 
-            loginViewModel.doLogin("abc@example.com", "123")
-
-            verify(mockObserverForStates).onChanged(
-                LoginDataState.InValidPasswordState(
-                    ArgumentMatchers.any()
-                )
+        //Assert
+        verify(mockObserverForStates).onChanged(
+            LoginDataState.InValidPasswordState(
+                ArgumentMatchers.any()
             )
-            verifyNoMoreInteractions(mockObserverForStates)
-        }
+        )
+        verifyNoMoreInteractions(mockObserverForStates)
     }
 
     @Test
-    fun testIfEmailAndPasswordValidDoLogin() {
-        initValues(true, true)
-
+    fun testIfEmailAndPasswordValid_DoLogin() {
+        //Arrange
+        initValues(isEmailValid = true, isPasswordValid = true)
         runBlockingTest {
             `when`(serviceUtil.authenticate(map)).thenReturn(Response.success(loginModel))
-
-            loginViewModel.doLogin("abc@example.com", "12345678")
-
-            verify(mockObserverForStates).onChanged(LoginDataState.ValidCredentialsState)
-            verify(mockObserverForStates, times(2))
-                .onChanged(LoginDataState.Success(ArgumentMatchers.any()))
-            verifyNoMoreInteractions(mockObserverForStates)
         }
+
+        //Act
+        loginViewModel.doLogin(EMAIL, PASSWORD)
+
+        //Assert
+        verify(mockObserverForStates).onChanged(LoginDataState.ValidCredentialsState)
+        verify(
+            mockObserverForStates,
+            times(2)
+        ).onChanged(LoginDataState.Success(ArgumentMatchers.any()))
+        verifyNoMoreInteractions(mockObserverForStates)
     }
 
     @Test
-    fun testThrowErrorOnLoginFailed() {
-        initValues(true, true)
-
+    fun testThrowError_OnLoginFailed() {
+        //Arrange
+        initValues(isEmailValid = true, isPasswordValid = true)
+        val error = RuntimeException()
         runBlocking {
-            val error = RuntimeException()
-
             `when`(serviceUtil.authenticate(map)).thenThrow(error)
-
-            loginViewModel.doLogin("abc@example.com", "12345678")
-
-            verify(mockObserverForStates).onChanged(LoginDataState.ValidCredentialsState)
-            verify(mockObserverForStates, times(2))
-                .onChanged(LoginDataState.Error(ArgumentMatchers.any()))
-            verifyNoMoreInteractions(mockObserverForStates)
         }
+
+        //Act
+        loginViewModel.doLogin(EMAIL, PASSWORD)
+
+        //Assert
+        verify(mockObserverForStates).onChanged(LoginDataState.ValidCredentialsState)
+        verify(mockObserverForStates, times(2))
+            .onChanged(LoginDataState.Error(ArgumentMatchers.any()))
+        verifyNoMoreInteractions(mockObserverForStates)
     }
 
+    //A function stubbing values needed
     private fun initValues(
         isEmailValid: Boolean,
         isPasswordValid: Boolean
@@ -165,4 +162,10 @@ class LoginViewModelMockTest {
 
     //A helper function to mock classes with types (generics)
     private inline fun <reified T> mock(): T = mock(T::class.java)
+
+    @After
+    @Throws(Exception::class)
+    fun tearDownClass() {
+        // Code executed after each test
+    }
 }

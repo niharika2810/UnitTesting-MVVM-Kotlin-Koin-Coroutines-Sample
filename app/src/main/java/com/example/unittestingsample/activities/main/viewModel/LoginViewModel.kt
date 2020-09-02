@@ -39,18 +39,17 @@ class LoginViewModel constructor(
 
 
     private fun areUserCredentialsValid(userEmail: String, password: String): Boolean {
-        if (!UtilityClass.isEmailValid(userEmail)) {
+        return if (!UtilityClass.isEmailValid(userEmail)) {
             uiState.postValue(LoginDataState.InValidEmailState("Please enter a valid email ID"))
-            return false
+            false
         } else if (!UtilityClass.isPasswordValid(password)) {
             uiState.postValue(LoginDataState.InValidPasswordState("Please enter a valid length password"))
-            return false
+            false
         } else {
             uiState.postValue(LoginDataState.ValidCredentialsState)
-            return true
+            true
         }
     }
 
     fun getObserverState() = uiState
-
 }

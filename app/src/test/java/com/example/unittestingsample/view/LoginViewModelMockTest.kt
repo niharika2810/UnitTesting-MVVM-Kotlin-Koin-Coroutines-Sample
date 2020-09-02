@@ -83,7 +83,7 @@ class LoginViewModelMockTest {
         initValues(isEmailValid = false, isPasswordValid = false)
 
         //Act
-        loginViewModel.doLogin("", "")
+        loginViewModel.doLogin(EMAIL, PASSWORD)
 
         //Assert
         verify(mockObserverForStates).onChanged(LoginDataState.InValidEmailState(ArgumentMatchers.any()))
@@ -108,7 +108,7 @@ class LoginViewModelMockTest {
         //Arrange
         initValues(isEmailValid = true, isPasswordValid = true)
         runBlockingTest {
-            `when`(serviceUtil.authenticate(map)).thenReturn(Response.success(loginModel))
+            `when`(serviceUtil.authenticate(ArgumentMatchers.anyMap<String, String>() as HashMap<String, String>)).thenReturn(Response.success(loginModel))
         }
 
         //Act

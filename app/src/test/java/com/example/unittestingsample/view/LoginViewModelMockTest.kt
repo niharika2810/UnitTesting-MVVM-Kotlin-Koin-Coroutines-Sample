@@ -14,6 +14,7 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.*
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.powermock.api.mockito.PowerMockito.mockStatic
@@ -85,11 +86,7 @@ class LoginViewModelMockTest {
         loginViewModel.doLogin("", "")
 
         //Assert
-        verify(mockObserverForStates).onChanged(
-            LoginDataState.InValidEmailState(
-                ArgumentMatchers.any()
-            )
-        )
+        verify(mockObserverForStates).onChanged(LoginDataState.InValidEmailState(ArgumentMatchers.any()))
         verifyNoMoreInteractions(mockObserverForStates)
     }
 
@@ -102,11 +99,7 @@ class LoginViewModelMockTest {
         loginViewModel.doLogin(EMAIL, PASSWORD)
 
         //Assert
-        verify(mockObserverForStates).onChanged(
-            LoginDataState.InValidPasswordState(
-                ArgumentMatchers.any()
-            )
-        )
+        verify(mockObserverForStates).onChanged(LoginDataState.InValidPasswordState(ArgumentMatchers.any()))
         verifyNoMoreInteractions(mockObserverForStates)
     }
 
@@ -154,10 +147,10 @@ class LoginViewModelMockTest {
         isEmailValid: Boolean,
         isPasswordValid: Boolean
     ) {
-        `when`(UtilityClass.isEmailValid(ArgumentMatchers.anyString())).thenReturn(isEmailValid)
-        `when`(UtilityClass.isPasswordValid(ArgumentMatchers.anyString())).thenReturn(
-            isPasswordValid
-        )
+        `when`(UtilityClass.isEmailValid(anyString())).thenAnswer { isEmailValid }
+
+        `when`(UtilityClass.isPasswordValid(anyString())).thenAnswer { isPasswordValid }
+
     }
 
     //A helper function to mock classes with types (generics)
@@ -166,6 +159,6 @@ class LoginViewModelMockTest {
     @After
     @Throws(Exception::class)
     fun tearDownClass() {
-        // Code executed after each test
+        framework().clearInlineMocks()
     }
 }

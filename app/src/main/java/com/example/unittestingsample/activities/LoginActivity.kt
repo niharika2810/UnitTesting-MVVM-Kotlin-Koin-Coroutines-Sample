@@ -70,23 +70,23 @@ class LoginActivity : AppCompatActivity() {
                 resetPasswordError()
             }
             is LoginDataState.InValidEmailState -> {
-                setEmailError(dataState)
+                setEmailError()
 
             }
             is LoginDataState.InValidPasswordState -> {
                 resetEmailError()
-                setPasswordError(dataState)
+                setPasswordError()
             }
         }
     }
 
-    private fun setEmailError(dataState: LoginDataState.InValidEmailState) {
-        text_input_name.error = dataState.message
+    private fun setEmailError() {
+        text_input_name.error = "Please enter a valid email ID"
         text_input_name.isErrorEnabled = true
     }
 
-    private fun setPasswordError(dataState: LoginDataState.InValidPasswordState) {
-        text_input_password.error = dataState.message
+    private fun setPasswordError() {
+        text_input_password.error = "Please enter a valid password"
         text_input_password.isErrorEnabled = true
     }
 

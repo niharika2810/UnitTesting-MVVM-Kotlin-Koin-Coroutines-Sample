@@ -30,7 +30,6 @@ class LoginViewModel constructor(
                 }.onSuccess {
                     uiState.postValue(LoginDataState.Success(it))
                 }.onFailure {
-                    it.printStackTrace()
                     uiState.postValue(LoginDataState.Error("Request Failed,Please try later."))
                 }
             }
@@ -40,10 +39,10 @@ class LoginViewModel constructor(
 
     private fun areUserCredentialsValid(userEmail: String, password: String): Boolean {
         return if (!UtilityClass.isEmailValid(userEmail)) {
-            uiState.postValue(LoginDataState.InValidEmailState("Please enter a valid email ID"))
+            uiState.postValue(LoginDataState.InValidEmailState)
             false
         } else if (!UtilityClass.isPasswordValid(password)) {
-            uiState.postValue(LoginDataState.InValidPasswordState("Please enter a valid length password"))
+            uiState.postValue(LoginDataState.InValidPasswordState)
             false
         } else {
             uiState.postValue(LoginDataState.ValidCredentialsState)

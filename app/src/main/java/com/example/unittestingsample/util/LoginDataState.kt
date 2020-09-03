@@ -9,7 +9,7 @@ import retrofit2.Response
 sealed class LoginDataState {
     data class Error(val message: String?) : LoginDataState()
     object ValidCredentialsState : LoginDataState()
-    data class InValidEmailState(val message: String?) : LoginDataState()
-    data class InValidPasswordState(val message: String?) : LoginDataState()
-    data class Success(val body: Response<LoginModel>? = null) : LoginDataState()
+    object InValidEmailState : LoginDataState()
+    object InValidPasswordState : LoginDataState()
+    class Success(val body: Response<LoginModel>? = null) : LoginDataState()
 }

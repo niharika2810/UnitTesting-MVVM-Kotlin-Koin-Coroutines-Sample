@@ -34,7 +34,6 @@ class ItemViewModel(
                 }.onSuccess {
                     uiState.postValue(ItemDataState.Success(it))
                 }.onFailure {
-                    it.printStackTrace()
                     uiState.postValue(ItemDataState.Error(it.message))
                 }
             }

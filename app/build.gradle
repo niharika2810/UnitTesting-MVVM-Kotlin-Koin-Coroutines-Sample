@@ -67,7 +67,7 @@ dependencies {
     testImplementation "org.mockito:mockito-core:3.5.9"
 
 
-    implementation "android.arch.core:core-testing:1.1.1"
+    testImplementation "android.arch.core:core-testing:1.1.1"
 
     implementation "org.powermock:powermock-module-junit4:2.0.4"
     implementation "org.powermock:powermock-module-junit4-rule:2.0.4"

@@ -19,6 +19,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.powermock.modules.junit4.PowerMockRunner
+import java.lang.IllegalStateException
 
 /**
  * author Niharika Arora
@@ -33,7 +34,6 @@ class ItemViewModelMockTest {
     @Mock
     private lateinit var items: ArrayList<Item>
 
-
     @Rule
     @JvmField
     var instantExecutorRule = InstantTaskExecutorRule()
@@ -42,13 +42,11 @@ class ItemViewModelMockTest {
     @JvmField
     val coRoutineTestRule = CoroutineTestRule()
 
+    //Use android.arch.core:core-testing:version
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
     private val mockObserverForStates = mock<Observer<ItemDataState>>()
-
-    @Mock
-    private lateinit var headersMap: HashMap<String, String>
 
     @Mock
     private lateinit var headers: Headers
@@ -61,11 +59,13 @@ class ItemViewModelMockTest {
     }
 
     @Test
-    fun testIfHeadersMissingAndReport() {
+    fun testIfHeadersMissing_Report() {
         initValues("ClientId", "", "")
 
         runBlockingTest {
-            `when`(serviceUtil.getList(headersMap)).thenReturn(items)
+            `when`(serviceUtil.getList(ArgumentMatchers.anyMap<String, String>() as HashMap<String, String>)).thenReturn(
+                items
+            )
 
             itemViewModel.showList(headers)
 
@@ -75,11 +75,13 @@ class ItemViewModelMockTest {
     }
 
     @Test
-    fun testFetchListFromServer() {
+    fun testIfHeadersValid_FetchListFromServer_ShowSuccess() {
         initValues("ClientId", "AccessToken", "UserId")
 
         runBlockingTest {
-            `when`(serviceUtil.getList(headersMap)).thenReturn(items)
+            `when`(serviceUtil.getList(ArgumentMatchers.anyMap<String, String>() as HashMap<String, String>)).thenReturn(
+                items
+            )
 
             itemViewModel.showList(headers)
 
@@ -92,13 +94,15 @@ class ItemViewModelMockTest {
     }
 
     @Test
-    fun testThrowErrorOnListCallbackFailed() {
+    fun testThrowErrorOnListFetchFailed() {
         initValues("ClientId", "AccessToken", "UserId")
 
         runBlocking {
-            val error = RuntimeException()
+            val error = IllegalStateException()
 
-            `when`(serviceUtil.getList(headersMap)).thenThrow(error)
+            `when`(serviceUtil.getList(ArgumentMatchers.anyMap<String, String>() as HashMap<String, String>)).thenThrow(
+                error
+            )
 
             itemViewModel.showList(headers)
 

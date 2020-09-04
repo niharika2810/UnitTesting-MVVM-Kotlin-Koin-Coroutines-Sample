@@ -121,7 +121,7 @@ class LoginViewModelMockTest {
         `when`(UtilityClass.isEmailValid(anyString())).thenAnswer { true }
         `when`(UtilityClass.isPasswordValid(anyString())).thenAnswer { true }
 
-        //TO test coroutines in junit, we use runBlockingTest
+        //TO test suspend functions in junit, we use **runBlockingTest**, for normal functions this is not needed.
         runBlockingTest {
             `when`(serviceUtil.authenticate(ArgumentMatchers.anyMap<String, String>() as HashMap<String, String>)).thenReturn(
                 Response.success(loginModel)

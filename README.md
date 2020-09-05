@@ -1,4 +1,5 @@
 # UnitTesting-MVVM-Kotlin-Koin-Coroutines-Sample
+Use : user@example.com and password for sample Login in App.
 
 This repository covers sample unit testing for Login and listing screens using MVVM,Kotlin,Coroutines and Koin.
 
